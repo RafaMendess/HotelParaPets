@@ -1,0 +1,36 @@
+./backend/.env
+./backend/.sequelizerc
+./backend/node_modules/
+./backend/routes.http
+
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+./front/test/
+./front/web/
+./front/macos/
+./front/ios/
+./front/android/
+./front/windows/
+./front/linux/
+./front/.metadata
+
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+

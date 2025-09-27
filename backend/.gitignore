@@ -1,0 +1,4 @@
+.env
+.sequelizerc
+node_modules/
+routes.http
