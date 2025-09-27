@@ -100,8 +100,8 @@ class _EditScreenState extends State<EditScreen> {
                     DropdownMenuItem(value: 'contato_tutor', child: Text('Contato')),
                     DropdownMenuItem(value: 'especie', child: Text('Espécie')),
                     DropdownMenuItem(value: 'raca', child: Text('Raça')),
-                    DropdownMenuItem(value: 'data_entrada', child: Text('Data Entrada')),
-                    DropdownMenuItem(value: 'data_saida', child: Text('Data Saída')),
+                    DropdownMenuItem(value: 'data_entrada', child: Text('Data de Entrada')),
+                    DropdownMenuItem(value: 'data_saida', child: Text('Data de Saída')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -131,10 +131,10 @@ class _EditScreenState extends State<EditScreen> {
                             final racaCtrl = TextEditingController(text: pet.raca);
                             final dataEntradaCtrl = TextEditingController(
                                 text:
-                                    "${pet.data_entrada.day}/${pet.data_entrada.month}/${pet.data_entrada.year}");
+                                    formatarDataParaExibicao(pet.data_entrada));
                             final dataSaidaCtrl = TextEditingController(
                                 text: pet.data_saida != null
-                                    ? "${pet.data_saida!.day}/${pet.data_saida!.month}/${pet.data_saida!.year}"
+                                    ? formatarDataParaExibicao(pet.data_saida!)
                                     : '');
 
                             return Card(

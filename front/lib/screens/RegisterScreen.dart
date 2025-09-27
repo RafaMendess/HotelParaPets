@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/utills/dateUtills.dart';
 import '../models/pet.dart';
 import '../controllers/petController.dart';
 
@@ -131,10 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: TextEditingController(
                           text: _dataEntrada == null
                               ? ""
-                              : _dataEntrada!
-                                  .toLocal()
-                                  .toString()
-                                  .split(' ')[0],
+                              : formatarDataParaExibicao(_dataEntrada!),
                         ),
                         validator: (_) => _dataEntrada == null
                             ? "Campo obrigatório"
@@ -163,10 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: TextEditingController(
                           text: _dataSaida == null
                               ? ""
-                              : _dataSaida!
-                                  .toLocal()
-                                  .toString()
-                                  .split(' ')[0],
+                              : formatarDataParaExibicao(_dataSaida!),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -181,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   : () async {
                                       if (_formKey.currentState!.validate()) {
                                         final pet = Pet(
-                                          id: 0, // backend vai gerar
+                                          id: 0, 
                                           nome_tutor: _nomeController.text,
                                           contato_tutor:
                                               _contatoController.text,

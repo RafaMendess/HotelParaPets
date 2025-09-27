@@ -3,16 +3,16 @@ import '../models/pet.dart';
 import '../controllers/petController.dart';
 import '../utills/dateUtills.dart';
 
-class ListScreen extends StatefulWidget {
+class EditScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const ListScreen({Key? key, required this.onBack}) : super(key: key);
+  const EditScreen({Key? key, required this.onBack}) : super(key: key);
 
   @override
-  State<ListScreen> createState() => _ListScreenState();
+  State<EditScreen> createState() => _EditScreenState();
 }
 
-class _ListScreenState extends State<ListScreen> {
+class _EditScreenState extends State<EditScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'nome_tutor';
 
@@ -51,20 +51,16 @@ class _ListScreenState extends State<ListScreen> {
     }
   }
 
-  Future<void> _removePet(Pet pet) async {
+  Future<void> _editarPet(Pet pet) async {
     try {
-      await _controller.removerPet(pet.id);
-      setState(() {
-        _pets.remove(pet);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Hospedagem de ${pet.nome_tutor} excluída")),
-      );
+      await _controller.atualizarPet(pet);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Alterações salvas!")));
+      _fetchPets(); 
     } catch (e) {
-      print("Erro ao deletar pet: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro ao deletar pet: $e")),
-      );
+      print("Erro ao atualizar pet: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Erro ao atualizar pet: $e")));
     }
   }
 
@@ -72,7 +68,7 @@ class _ListScreenState extends State<ListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Lista de Hospedagens"),
+        title: const Text("Editar Hospedagens"),
         backgroundColor: Colors.orange.shade600,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -104,8 +100,8 @@ class _ListScreenState extends State<ListScreen> {
                     DropdownMenuItem(value: 'contato_tutor', child: Text('Contato')),
                     DropdownMenuItem(value: 'especie', child: Text('Espécie')),
                     DropdownMenuItem(value: 'raca', child: Text('Raça')),
-                    DropdownMenuItem(value: 'data_entrada', child: Text('Data Entrada')),
-                    DropdownMenuItem(value: 'data_saida', child: Text('Data Saída')),
+                    DropdownMenuItem(value: 'data_entrada', child: Text('Data de Entrada')),
+                    DropdownMenuItem(value: 'data_saida', child: Text('Data de Saída')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -126,12 +122,23 @@ class _ListScreenState extends State<ListScreen> {
                           itemCount: _pets.length,
                           itemBuilder: (context, index) {
                             final pet = _pets[index];
+
+                            final nomeCtrl = TextEditingController(text: pet.nome_tutor);
+                            final contatoCtrl =
+                                TextEditingController(text: pet.contato_tutor);
+                            final especieCtrl =
+                                TextEditingController(text: pet.especie);
+                            final racaCtrl = TextEditingController(text: pet.raca);
+                            final dataEntradaCtrl = TextEditingController(
+                                text:
+                                    formatarDataParaExibicao(pet.data_entrada));
+                            final dataSaidaCtrl = TextEditingController(
+                                text: pet.data_saida != null
+                                    ? formatarDataParaExibicao(pet.data_saida!)
+                                    : '');
+
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 3,
                               child: ExpansionTile(
                                 leading: Icon(
                                   pet.especie.toLowerCase() == 'cachorro'
@@ -139,43 +146,44 @@ class _ListScreenState extends State<ListScreen> {
                                       : Icons.pets_outlined,
                                   color: Colors.orange.shade700,
                                 ),
-                                title: Text(
-                                  pet.nome_tutor,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
+                                title: Text(pet.nome_tutor),
                                 subtitle: Text("Espécie: ${pet.especie}"),
                                 childrenPadding: const EdgeInsets.all(12),
                                 children: [
-                                  _buildDetailRow("Tutor", pet.nome_tutor),
-                                  _buildDetailRow("Contato", pet.contato_tutor),
-                                  _buildDetailRow("Raça", pet.raca),
-                                  _buildDetailRow(
-                                      "Data Entrada",
-                                      "${pet.data_entrada.day}/${pet.data_entrada.month}/${pet.data_entrada.year}"),
-                                  _buildDetailRow(
-                                    "Data Saída",
-                                    pet.data_saida != null
-                                        ? "${pet.data_saida!.day}/${pet.data_saida!.month}/${pet.data_saida!.year}"
-                                        : "Ainda hospedado",
-                                  ),
-                                  _buildDetailRow(
-                                      "Diárias até agora", "${pet.diariasAteAgora}"),
-                                  _buildDetailRow(
-                                    "Diárias previstas",
-                                    pet.diariasPrevistas?.toString() ?? "—",
-                                  ),
+                                  _buildEditableField("Nome do Tutor", nomeCtrl,
+                                      (val) => pet.nome_tutor = val),
+                                  _buildEditableField("Contato", contatoCtrl,
+                                      (val) => pet.contato_tutor = val),
+                                  _buildEditableField("Espécie", especieCtrl,
+                                      (val) => pet.especie = val),
+                                  _buildEditableField("Raça", racaCtrl,
+                                      (val) => pet.raca = val),
+                                  _buildEditableField("Data Entrada", dataEntradaCtrl,
+                                      (val) => pet.data_entrada = parseDataBR(val)),
+                                  _buildEditableField("Data Saída", dataSaidaCtrl,
+                                      (val) => pet.data_saida =
+                                          val.isNotEmpty ? parseDataBR(val) : null),
                                   const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: ElevatedButton.icon(
-                                      onPressed: () => _removePet(pet),
-                                      icon: const Icon(Icons.delete, color: Colors.white),
-                                      label: const Text("Excluir"),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () => _editarPet(pet),
+                                        child: const Text("Salvar"),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.orange.shade600),
                                       ),
-                                    ),
-                                  ),
+                                      ElevatedButton(
+                                        onPressed: widget.onBack,
+                                        child: const Text("Sair"),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.grey.shade400),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                             );
@@ -188,15 +196,17 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildEditableField(
+      String label, TextEditingController controller, Function(String) onChanged) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-          Text(value, style: const TextStyle(fontSize: 14)),
-        ],
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
       ),
     );
   }
